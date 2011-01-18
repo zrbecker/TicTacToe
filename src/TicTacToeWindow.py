@@ -1,19 +1,32 @@
 
 import wx
+import threading
 
 from TicTacToeState import *
+from TicTacToeAgent import *
 
 class TicTacToeWindow(wx.Window):
-    def __init__(self, parent, size=(300, 300)):
+    def __init__(self, parent, size=(300, 300), ai=None):
         wx.Window.__init__(self, parent, size=size)
         self._mouseover = None
         self._linewidth = 4
+        self._agent_thread = None
+        self.ai = ai
         self._init_game()
         self._init_buffer()
         self._event_handlers()
 
+    def reset_game(self, ai=None):
+        if self._agent_thread:
+            self._agent_thread.stop()
+        self.ai = ai
+        self._mouseover = None
+        self._init_game()
+        self._reinit_buffer = True
+
     def _init_game(self):
         self.game = TicTacToeState()
+        self._agent_move()
 
     def _init_buffer(self):
         self._buffer = wx.EmptyBitmap(*self.GetClientSize())
@@ -124,6 +137,7 @@ class TicTacToeWindow(wx.Window):
         self.Bind(wx.EVT_IDLE, self._on_idle)
         self.Bind(wx.EVT_LEFT_DOWN, self._on_click)
         self.Bind(wx.EVT_MOTION, self._on_motion)
+        self.Bind(wx.EVT_WINDOW_DESTROY, self._on_destroy)
 
     def _on_size(self, event):
         self._reinit_buffer = True
@@ -135,6 +149,11 @@ class TicTacToeWindow(wx.Window):
         if self._reinit_buffer == True:
             self._init_buffer()
             self.Refresh(False)
+
+    def _on_destroy(self, event):
+        if self._agent_thread:
+            self._agent_thread.stop(True)
+        event.Skip()
 
     def _pos_to_row_col(self, x, y):
         piece_w, piece_h = self._piece_size()
@@ -150,6 +169,7 @@ class TicTacToeWindow(wx.Window):
                 if self._mouseover == (row, col):
                     self._mouseover = None
                 self._reinit_buffer = True
+                self._agent_move()
         else:
             x, y, w, h = self._end_message_box()
             mouse_x, mouse_y = event.GetPositionTuple()
@@ -167,6 +187,51 @@ class TicTacToeWindow(wx.Window):
                     self._mouseover = None
                 self._reinit_buffer = True
 
+    def _agent_move(self):
+        if self.ai == self.game.turn:
+            self._agent_thread = ComputerDecision(self,
+                self.game.copy(), self.ai)
+            self._agent_thread.start()
+
+    def _agent_started(self):
+        self.Unbind(wx.EVT_LEFT_DOWN)
+        self.Unbind(wx.EVT_MOTION)
+
+    def _agent_finished(self):
+        self.Bind(wx.EVT_LEFT_DOWN, self._on_click)
+        self.Bind(wx.EVT_MOTION, self._on_motion)
+        self._agent_thread = None
+        self._reinit_buffer = True
+
+
+class ComputerDecision(threading.Thread):
+    def __init__(self, window, gamestate, piece='X'):
+        threading.Thread.__init__(self)
+        problem = TicTacToeProblem(gamestate)
+        self.agent = TicTacToeAgent(problem)
+        self.window = window
+        self.piece = piece
+        self.gamestate = gamestate
+        self.stopnow = False
+
+    def stop(self, now=False):
+        self.agent.keep_working = False
+        self.stopnow = now
+
+    def run(self):
+        wx.CallAfter(self.window._agent_started)
+        action = None
+        if self.piece == 'X':
+            action = self.agent.max_decision(self.gamestate)
+        elif self.piece == 'O':
+            action = self.agent.min_decision(self.gamestate)
+        if self.stopnow:
+            return
+        if action:
+            wx.CallAfter(self.window.game.do_action, *action)
+        wx.CallAfter(self.window._agent_finished)
+
+        
 if __name__ == '__main__':
     app = wx.PySimpleApp()
     frame = wx.Frame(None)
