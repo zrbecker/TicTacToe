@@ -2,7 +2,7 @@
 Requires wxPython
 Tested in 32 bit python 2.7 on Mac OS X
 
-Run with `python src/TicTacToe.py`
+Run with "python src/TicTacToe.py"
 
 Mac OS X Version
 https://github.com/downloads/zrbecker/TicTacToe/TicTacToe.dmg
