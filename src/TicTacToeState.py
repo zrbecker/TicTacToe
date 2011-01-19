@@ -1,12 +1,12 @@
 
 class TicTacToeState(object):
-    def __init__(self, board=None, turn='X'):
+    def __init__(self, board=None, turn='X', winner=None):
         if board:
             self.board = board
         else:
             self.board = [' ' for _ in range(3 ** 2)]
         self.turn = 'X'
-        self.winner = None
+        self.winner = winner
 
     def __eq__(self, other):
         return all(self.board == other.board,
@@ -28,7 +28,7 @@ class TicTacToeState(object):
         return result
 
     def copy(self):
-        return TicTacToeState(self.board[:], self.turn)
+        return TicTacToeState(self.board[:], self.turn, self.winner)
 
     def valid_moves(self):
         moves = []
