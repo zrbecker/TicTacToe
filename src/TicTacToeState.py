@@ -5,7 +5,7 @@ class TicTacToeState(object):
             self.board = board
         else:
             self.board = [' ' for _ in range(3 ** 2)]
-        self.turn = 'X'
+        self.turn = turn
         self.winner = winner
 
     def __eq__(self, other):
