@@ -1,6 +1,22 @@
 
 import random
 
+def max_(a, b):
+    if a == None:
+        return b
+    elif b == None:
+        return a
+    else:
+        return max(a, b)
+
+def min_(a, b):
+    if a == None:
+        return b
+    elif b == None:
+        return a
+    else:
+        return min(a, b)
+
 class TicTacToeAgent(object):
     def __init__(self, problem):
         self.problem = problem
@@ -40,28 +56,28 @@ class TicTacToeAgent(object):
         else:
             return None
 
-    def max_value(self, state):
+    def max_value(self, state, alpha=None, beta=None):
         if self.problem.is_terminal(state):
             return self.problem.utility(state)
         value = None
         for action, next_state in self.problem.successors(state):
-            if value is not None:
-                value = max(value, self.min_value(next_state))
-            else:
-                value = self.min_value(next_state)
+            value = max_(value, self.min_value(next_state, alpha, beta))
+            if beta is not None and value >= beta:
+                return value
+            alpha = max_(alpha, value)
             if self.keep_working == False:
                 break
         return value
 
-    def min_value(self, state):
+    def min_value(self, state, alpha=None, beta=None):
         if self.problem.is_terminal(state):
             return self.problem.utility(state)
         value = None
         for action, next_state in self.problem.successors(state):
-            if value is not None:
-                value = min(value, self.max_value(next_state))
-            else:
-                value = self.max_value(next_state)
+            value = min_(value, self.max_value(next_state, alpha, beta))
+            if alpha is not None and value <= alpha:
+                return value
+            beta = min_(beta, value)
             if self.keep_working == False:
                 break
         return value
