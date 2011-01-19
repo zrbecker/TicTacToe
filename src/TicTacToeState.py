@@ -1,4 +1,3 @@
-from copy import *
 
 class TicTacToeState(object):
     def __init__(self, board=None, turn='X'):
@@ -29,7 +28,7 @@ class TicTacToeState(object):
         return result
 
     def copy(self):
-        return deepcopy(self)
+        return TicTacToeState(self.board[:], self.turn)
 
     def valid_moves(self):
         moves = []
