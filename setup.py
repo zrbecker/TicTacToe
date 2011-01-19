@@ -5,7 +5,7 @@ import os
 
 APP = 'src/TicTacToe.py'
 APP_NAME = 'Tic-Tac-Toe'
-VERSION = '0.1'
+VERSION = '0.2'
 DATA = []
 
 def build_with_py2app():
