@@ -7,10 +7,14 @@ class TicTacToeAgent(object):
         self.keep_working = True
 
     def max_decision(self, state):
-        value = self.max_value(state)
+        value = None
         actions = []
         for action, next_state in self.problem.successors(state):
-            if value == self.min_value(next_state):
+            next_value = self.min_value(next_state)
+            if value is None or value < next_value:
+                value = next_value
+                actions = [action]
+            elif value == next_value:
                 actions.append(action)
             if self.keep_working == False:
                 break
@@ -20,10 +24,14 @@ class TicTacToeAgent(object):
             return None
 
     def min_decision(self, state):
-        value = self.min_value(state)
+        value = None
         actions = []
         for action, next_state in self.problem.successors(state):
-            if value == self.max_value(next_state):
+            next_value = self.max_value(next_state)
+            if value is None or value > next_value:
+                value = next_value
+                actions = [action]
+            elif value == next_value:
                 actions.append(action)
             if self.keep_working == False:
                 break
