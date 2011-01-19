@@ -121,7 +121,7 @@ class TicTacToeWindow(wx.Window):
 
 
     def _draw_end_message(self, dc):
-        if self.game.winner:
+        if self.game.winner == 'X' or self.game.winner == 'O':
             message = 'Congrats! %s wins!\nClick to play again.' \
                 % (self.game.winner)
         else:
