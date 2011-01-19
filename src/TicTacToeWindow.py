@@ -19,6 +19,7 @@ class TicTacToeWindow(wx.Window):
     def reset_game(self, ai=None):
         if self._agent_thread:
             self._agent_thread.stop()
+            self._agent_thread.join()
         self.ai = ai
         self._mouseover = None
         self._init_game()
@@ -26,7 +27,6 @@ class TicTacToeWindow(wx.Window):
 
     def _init_game(self):
         self.game = TicTacToeState()
-        self._agent_move()
 
     def _init_buffer(self):
         self._buffer = wx.EmptyBitmap(*self.GetClientSize())
@@ -148,6 +148,8 @@ class TicTacToeWindow(wx.Window):
         if self._reinit_buffer == True:
             self._init_buffer()
             self.Refresh(False)
+        if not self.game.is_finished():
+            self._agent_move()
 
     def _on_destroy(self, event):
         if self._agent_thread:
@@ -168,7 +170,6 @@ class TicTacToeWindow(wx.Window):
                 if self._mouseover == (row, col):
                     self._mouseover = None
                 self._reinit_buffer = True
-                self._agent_move()
         else:
             x, y, w, h = self._end_message_box()
             mouse_x, mouse_y = event.GetPositionTuple()
@@ -187,7 +188,7 @@ class TicTacToeWindow(wx.Window):
                 self._reinit_buffer = True
 
     def _agent_move(self):
-        if self.ai == self.game.turn:
+        if self.ai == self.game.turn and self._agent_thread is None:
             self._agent_thread = ComputerDecision(self,
                 self.game.copy(), self.ai)
             self._agent_thread.start()
