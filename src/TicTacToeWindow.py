@@ -119,7 +119,6 @@ class TicTacToeWindow(wx.Window):
         y = (win_h - h) / 2
         return (x, y, w, h)
 
-
     def _draw_end_message(self, dc):
         if self.game.winner == 'X' or self.game.winner == 'O':
             message = 'Congrats! %s wins!\nClick to play again.' \
