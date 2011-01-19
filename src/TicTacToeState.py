@@ -1,12 +1,11 @@
 
 class TicTacToeState(object):
     def __init__(self, board=None, turn='X', winner=None):
-        if board:
-            self.board = board
-        else:
-            self.board = [' ' for _ in range(3 ** 2)]
+        self.board = board
         self.turn = turn
         self.winner = winner
+        if board is None:
+            self.board = [' ' for _ in range(3 ** 2)]
 
     def __eq__(self, other):
         return all(self.board == other.board,
@@ -47,11 +46,9 @@ class TicTacToeState(object):
                 self.turn = 'O'
             else:
                 self.turn = 'X'
-            self.is_finished() # Sets winner
+            self.check_winner()
 
-    def is_finished(self):
-        if self.winner:
-            return True
+    def check_winner(self):
         winners = [(0, 1, 2), (0, 3, 6), (0, 4, 8), (1, 4, 7),
                    (2, 5, 8), (2, 4, 6), (3, 4, 5), (6, 7, 8)]
         for (a, b, c) in winners:
@@ -59,8 +56,14 @@ class TicTacToeState(object):
                 self.winner = self.board[a]
                 return True
         if ' ' not in self.board:
+            self.winner = ' '
             return True
-        return False
+
+    def is_finished(self):
+        if self.winner:
+            return True
+        else:
+            return False
 
 
 class TicTacToeConsole(object):
