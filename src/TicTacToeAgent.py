@@ -21,6 +21,7 @@ class TicTacToeAgent(object):
     def __init__(self, problem):
         self.problem = problem
         self.keep_working = True
+        self.trans_table = {}
 
     def max_decision(self, state):
         value = None
@@ -57,6 +58,8 @@ class TicTacToeAgent(object):
             return None
 
     def max_value(self, state, alpha=None, beta=None):
+        if state in self.trans_table:
+            return self.trans_table[state]
         if self.problem.is_terminal(state):
             return self.problem.utility(state)
         value = None
@@ -67,9 +70,12 @@ class TicTacToeAgent(object):
             alpha = max_(alpha, value)
             if self.keep_working == False:
                 break
+        self.trans_table[state] = value
         return value
 
     def min_value(self, state, alpha=None, beta=None):
+        if state in self.trans_table:
+            return self.trans_table[state]
         if self.problem.is_terminal(state):
             return self.problem.utility(state)
         value = None
@@ -80,6 +86,7 @@ class TicTacToeAgent(object):
             beta = min_(beta, value)
             if self.keep_working == False:
                 break
+        self.trans_table[state] = value
         return value
 
 

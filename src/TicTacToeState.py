@@ -8,8 +8,8 @@ class TicTacToeState(object):
             self.board = [' ' for _ in range(3 ** 2)]
 
     def __eq__(self, other):
-        return all(self.board == other.board,
-                   self.turn == other.turn)
+        return all((self.board == other.board,
+                   self.turn == other.turn))
 
     def __hash__(self):
         return hash((tuple(self.board), self.turn))
